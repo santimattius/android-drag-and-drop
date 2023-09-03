@@ -1,8 +1,6 @@
 # Android Drag and Drop
 Example Grid Drag and Drop in Jetpack Compose
 
-![Screen_recording_20230825_122628](https://github.com/santimattius/android-drag-and-drop/assets/22333101/57861f3c-824e-42ff-9639-4ef4ca1db648)
-
 ## Content
 
 TheMovieDB API: Check this [documentation](https://www.themoviedb.org/documentation/api).

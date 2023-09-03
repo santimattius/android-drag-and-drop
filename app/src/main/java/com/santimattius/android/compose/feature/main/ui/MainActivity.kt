@@ -4,35 +4,35 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.SubcomposeAsyncImage
+import com.santimattius.android.compose.R
 import com.santimattius.android.compose.core.ui.component.AppBar
-import com.santimattius.android.compose.core.ui.component.DraggableGrid
+import com.santimattius.android.compose.core.ui.component.column.LazyDraggableColumn
+import com.santimattius.android.compose.core.ui.component.grid.LazyDraggableVerticalGrid
 import com.santimattius.android.compose.core.ui.theme.DragAndDropTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -59,8 +59,27 @@ fun MainScreen(
 ) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var isGridMode by remember { mutableStateOf(true) }
 
-    Scaffold(topBar = { AppBar() }) {
+    Scaffold(
+        topBar = {
+            AppBar(actions = {
+                IconButton(onClick = { isGridMode = !isGridMode }) {
+                    if (isGridMode) {
+                        Icon(
+                            imageVector = Icons.Filled.List,
+                            contentDescription = "List view"
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_grid_view),
+                            contentDescription = "Grid view"
+                        )
+                    }
+                }
+            })
+        }
+    ) {
         Box(
             modifier = Modifier
                 .padding(it)
@@ -68,6 +87,7 @@ fun MainScreen(
         ) {
             MainContent(
                 state = state,
+                isGridMode = isGridMode,
                 onMove = viewModel::move
             )
         }
@@ -75,12 +95,15 @@ fun MainScreen(
 }
 
 @Composable
-fun MainContent(state: MainUiState, onMove: (Int, Int) -> Unit) {
+fun MainContent(
+    state: MainUiState,
+    isGridMode: Boolean,
+    onMove: (Int, Int) -> Unit,
+) {
     when {
         state.isLoading -> {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
@@ -88,8 +111,7 @@ fun MainContent(state: MainUiState, onMove: (Int, Int) -> Unit) {
 
         state.isFailure -> {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
             ) {
                 Text("Error")
             }
@@ -99,6 +121,7 @@ fun MainContent(state: MainUiState, onMove: (Int, Int) -> Unit) {
             val movies = state.data.toMutableStateList()
             MoviesContent(
                 data = movies,
+                gridMode = isGridMode,
                 onMove = onMove
             )
         }
@@ -106,42 +129,25 @@ fun MainContent(state: MainUiState, onMove: (Int, Int) -> Unit) {
 }
 
 @Composable
-fun MoviesContent(data: List<MovieUiModel>, onMove: (Int, Int) -> Unit) {
-    DraggableGrid(items = data, onMove = onMove) { item, isDragging ->
-        val elevation by animateDpAsState(if (isDragging) 4.dp else 1.dp, label = "elevation")
-        CardGridItem(item = item, elevation = elevation)
-    }
-}
-
-private const val IMAGE_ASPECT_RATIO = 0.67f
-
-@Composable
-fun CardGridItem(
-    modifier: Modifier = Modifier,
-    item: MovieUiModel,
-    elevation: Dp,
+fun MoviesContent(
+    data: List<MovieUiModel>,
+    gridMode: Boolean = true,
+    onMove: (Int, Int) -> Unit,
 ) {
-    Card(
-        modifier = modifier,
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = elevation)
-    ) {
-        SubcomposeAsyncImage(
-            model = item.image,
-            loading = {
-                Box(contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(32.dp)
-                    )
-                }
-            },
-            contentDescription = item.title,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.LightGray)
-                .aspectRatio(ratio = IMAGE_ASPECT_RATIO),
-        )
+
+    if (gridMode) {
+        LazyDraggableVerticalGrid(items = data, onMove = onMove) { item, isDragging ->
+            val elevation by animateDpAsState(if (isDragging) 4.dp else 1.dp, label = "elevation")
+            CardGridItem(item = item, elevation = elevation)
+        }
+
+    } else {
+        LazyDraggableColumn(items = data, onMove = onMove) { item, isDragging ->
+            val elevation by animateDpAsState(if (isDragging) 4.dp else 1.dp, label = "elevation")
+            CardListItem(item = item, elevation = elevation)
+        }
     }
+
 }
 
 

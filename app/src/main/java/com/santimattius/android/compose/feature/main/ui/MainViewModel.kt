@@ -31,7 +31,8 @@ class MainViewModel(
                 MovieUiModel(
                     id = it.id,
                     title = it.title,
-                    image = it.image
+                    overview = it.overview,
+                    image = it.image,
                 )
             }
             _state.update { it.copy(isLoading = false, data = movies) }

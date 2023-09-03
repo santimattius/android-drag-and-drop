@@ -24,7 +24,8 @@ class MovieRepository(private val client: HttpClient) {
             Movie(
                 id = it.id,
                 title = it.title,
-                image = it.poster
+                overview = it.overview,
+                image = it.poster,
             )
         }
     }

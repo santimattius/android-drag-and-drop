@@ -1,4 +1,4 @@
-package com.santimattius.android.compose.core.ui.component
+package com.santimattius.android.compose.core.ui.component.grid
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -29,10 +29,10 @@ import kotlinx.coroutines.launch
 fun rememberGridDragDropState(
     gridState: LazyGridState,
     onMove: (Int, Int) -> Unit,
-): GridDragDropState {
+): LazyDraggableGridState {
     val scope = rememberCoroutineScope()
     val state = remember(gridState) {
-        GridDragDropState(
+        LazyDraggableGridState(
             state = gridState,
             onMove = onMove,
             scope = scope
@@ -47,7 +47,7 @@ fun rememberGridDragDropState(
     return state
 }
 
-class GridDragDropState internal constructor(
+class LazyDraggableGridState internal constructor(
     private val state: LazyGridState,
     private val scope: CoroutineScope,
     private val onMove: (Int, Int) -> Unit,

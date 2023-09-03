@@ -1,4 +1,4 @@
-package com.santimattius.android.compose.core.ui.component
+package com.santimattius.android.compose.core.ui.component.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -19,7 +19,7 @@ import androidx.compose.ui.zIndex
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun <T : Any> DraggableGrid(
+fun <T : Any> LazyDraggableVerticalGrid(
     items: List<T>,
     onMove: (Int, Int) -> Unit,
     content: @Composable (T, Boolean) -> Unit,
@@ -44,7 +44,7 @@ fun <T : Any> DraggableGrid(
     }
 }
 
-fun Modifier.dragContainer(dragDropState: GridDragDropState): Modifier {
+fun Modifier.dragContainer(dragDropState: LazyDraggableGridState): Modifier {
     return pointerInput(dragDropState) {
         detectDragGesturesAfterLongPress(
             onDrag = { change, offset ->
@@ -61,7 +61,7 @@ fun Modifier.dragContainer(dragDropState: GridDragDropState): Modifier {
 @ExperimentalFoundationApi
 @Composable
 fun LazyGridItemScope.DraggableItem(
-    dragDropState: GridDragDropState,
+    dragDropState: LazyDraggableGridState,
     index: Int,
     modifier: Modifier = Modifier,
     content: @Composable (isDragging: Boolean) -> Unit,
